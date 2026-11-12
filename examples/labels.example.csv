@@ -1,0 +1,7 @@
+kind,pattern,label
+# Commits by your AI agent's service account
+author,ai-agent@yourcompany\.com,ai
+# A specific commit you know was AI-generated (SHA prefix)
+commit,4f9a2c1,ai
+# Code you know predates AI tooling regardless of commit dates (e.g. after a repo migration)
+path,legacy/**,human

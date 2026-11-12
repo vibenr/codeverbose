@@ -1,0 +1,40 @@
+name: codeverbose
+description: Compare verbosity of AI-assisted vs human-written code in this repository.
+branding:
+  icon: bar-chart-2
+  color: purple
+inputs:
+  args:
+    description: Extra arguments for `codeverbose analyze` (e.g. --include 'src/**' --lang java)
+    required: false
+    default: ""
+  path:
+    description: Path to analyze
+    required: false
+    default: "."
+  python-version:
+    description: Python version used to run the tool
+    required: false
+    default: "3.12"
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+    - name: Install codeverbose
+      shell: bash
+      run: pip install "${{ github.action_path }}"
+    - name: Analyze
+      shell: bash
+      run: |
+        if [ "$(git -C "${{ inputs.path }}" rev-parse --is-shallow-repository)" = "true" ]; then
+          echo "::warning::Shallow clone detected. Use actions/checkout with fetch-depth: 0 for accurate labels."
+        fi
+        codeverbose analyze "${{ inputs.path }}" --html codeverbose-report.html ${{ inputs.args }} > codeverbose.txt
+        cat codeverbose.txt
+        { echo "## codeverbose"; echo '```'; cat codeverbose.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+    - uses: actions/upload-artifact@v4
+      with:
+        name: codeverbose-report
+        path: codeverbose-report.html
