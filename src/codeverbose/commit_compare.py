@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import math
-from dataclasses import dataclass, field, fields
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -165,6 +165,7 @@ def _compare_changed(changed: list[ChangedFile], ref_before: str, ref_after: str
 # Rendering
 # ---------------------------------------------------------------------------
 
+
 def render_text(result: CompareResult, top_n: int = 20) -> str:
     lines: list[str] = []
     lines.append(f"Verbosity comparison: {result.ref_before} → {result.ref_after}")
@@ -183,7 +184,7 @@ def render_text(result: CompareResult, top_n: int = 20) -> str:
     lines.append("── Aggregate metric deltas (mean across modified functions) ──")
     col_w = 30
     lines.append(f"  {'Metric':<{col_w}}  {'Δ (after − before)':>20}")
-    lines.append(f"  {'-'*col_w}  {'─'*20}")
+    lines.append(f"  {'-' * col_w}  {'─' * 20}")
     for key in COMPARE_KEYS:
         delta = result.aggregate_delta(key)
         if delta is None:
@@ -205,11 +206,11 @@ def render_text(result: CompareResult, top_n: int = 20) -> str:
             key=lambda d: abs(d.delta("loc") or 0),
             reverse=True,
         )[:top_n]
-        lines.append(f"── Top {min(top_n, len(changed_sorted))} most-changed functions (by |ΔLOC|) ──")
         lines.append(
-            f"  {'Function':<45}  {'ΔLOC':>6}  {'ΔComments':>10}  {'ΔComplexity':>12}"
+            f"── Top {min(top_n, len(changed_sorted))} most-changed functions (by |ΔLOC|) ──"
         )
-        lines.append(f"  {'-'*45}  {'─'*6}  {'─'*10}  {'─'*12}")
+        lines.append(f"  {'Function':<45}  {'ΔLOC':>6}  {'ΔComments':>10}  {'ΔComplexity':>12}")
+        lines.append(f"  {'-' * 45}  {'─' * 6}  {'─' * 10}  {'─' * 12}")
         for d in changed_sorted:
             fn = f"{d.file}::{d.function}"
             if len(fn) > 44:
@@ -217,9 +218,7 @@ def render_text(result: CompareResult, top_n: int = 20) -> str:
             dloc = d.delta("loc")
             dcom = d.delta("comment_lines")
             dcmx = d.delta("complexity")
-            lines.append(
-                f"  {fn:<45}  {_fmt(dloc):>6}  {_fmt(dcom):>10}  {_fmt(dcmx):>12}"
-            )
+            lines.append(f"  {fn:<45}  {_fmt(dloc):>6}  {_fmt(dcom):>10}  {_fmt(dcmx):>12}")
         lines.append("")
 
     # New code verbosity — full metric table for added functions
@@ -231,8 +230,8 @@ def render_text(result: CompareResult, top_n: int = 20) -> str:
             f"  {'Cmplx':>6}  {'AvgIdLen':>9}  {'Narrating':>10}  {'StyleSig':>9}"
         )
         lines.append(
-            f"  {'-'*45}  {'─'*5}  {'─'*9}  {'─'*5}"
-            f"  {'─'*6}  {'─'*9}  {'─'*10}  {'─'*9}"
+            f"  {'-' * 45}  {'─' * 5}  {'─' * 9}  {'─' * 5}"
+            f"  {'─' * 6}  {'─' * 9}  {'─' * 10}  {'─' * 9}"
         )
         for d in added[:top_n]:
             m = d.after
@@ -283,13 +282,11 @@ def render_json(result: CompareResult) -> str:
             "modified": result.files_modified,
             "deleted": result.files_deleted,
         },
-        "aggregate_deltas": {
-            key: result.aggregate_delta(key) for key in COMPARE_KEYS
-        },
+        "aggregate_deltas": {key: result.aggregate_delta(key) for key in COMPARE_KEYS},
         "new_code_profile": {
-            key: (
-                lambda vals: sum(vals) / len(vals) if vals else None
-            )([float(getattr(d.after, key)) for d in result.functions_added() if d.after])
+            key: (lambda vals: sum(vals) / len(vals) if vals else None)(
+                [float(getattr(d.after, key)) for d in result.functions_added() if d.after]
+            )
             for key in COMPARE_KEYS
         },
         "functions": [d.as_dict() for d in result.diffs],

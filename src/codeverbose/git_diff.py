@@ -11,7 +11,7 @@ from pathlib import Path
 class ChangedFile:
     path: str
     before: bytes | None  # None = file was added
-    after: bytes | None   # None = file was deleted
+    after: bytes | None  # None = file was deleted
 
 
 def _git(repo: Path, *args: str) -> bytes:
@@ -58,9 +58,7 @@ def changed_files_between(repo: Path, ref_a: str, ref_b: str) -> list[ChangedFil
     return _parse_name_status(repo, raw, ref_a, ref_b)
 
 
-def _parse_name_status(
-    repo: Path, raw: str, before_ref: str, after_ref: str
-) -> list[ChangedFile]:
+def _parse_name_status(repo: Path, raw: str, before_ref: str, after_ref: str) -> list[ChangedFile]:
     files: list[ChangedFile] = []
     for line in raw.splitlines():
         line = line.strip()

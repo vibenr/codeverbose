@@ -7,10 +7,10 @@ import sys
 from pathlib import Path
 
 from codeverbose import __version__, labeling, report
-from codeverbose.languages import all_languages, by_name, for_path
-from codeverbose.scanner import DEFAULT_EXCLUDES, ScanOptions, scan, write_csv
 from codeverbose import commit_compare as _cc
 from codeverbose.git_diff import resolve_ref
+from codeverbose.languages import all_languages, by_name, for_path
+from codeverbose.scanner import DEFAULT_EXCLUDES, ScanOptions, scan, write_csv
 
 
 def _add_scan_args(p: argparse.ArgumentParser) -> None:
@@ -222,8 +222,7 @@ def _ai_summary(result: _cc.CompareResult) -> str:
         f"Functions: {n_added} added, {n_changed} modified, {n_deleted} deleted.\n\n"
         f"Mean metric deltas (after − before) across modified functions:\n"
         + "\n".join(
-            f"  {_cc.METRIC_LABELS.get(k, k)}: "
-            + (f"{v:+.3f}" if v is not None else "n/a")
+            f"  {_cc.METRIC_LABELS.get(k, k)}: " + (f"{v:+.3f}" if v is not None else "n/a")
             for k, v in deltas.items()
         )
         + "\n\nIn 3-5 concise sentences, assess what these changes mean for code quality "
@@ -324,9 +323,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="commit hash (or ref) to compare against its parent.  "
         "Pass two refs separated by '..' to compare arbitrary refs, e.g. main..HEAD",
     )
-    p.add_argument(
-        "path", nargs="?", default=".", help="git repository root (default: .)"
-    )
+    p.add_argument("path", nargs="?", default=".", help="git repository root (default: .)")
     p.add_argument("--json", action="store_true", help="print JSON instead of a table")
     p.add_argument(
         "--ai",

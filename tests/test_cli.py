@@ -26,3 +26,30 @@ def test_scan_then_report_with_forced_labels(tmp_path, capsys):
     assert main(["report", str(out), "--html", str(html_path)]) == 0
     assert "<table>" in html_path.read_text()
     assert "Lines per decision point" in capsys.readouterr().out
+
+
+def test_cli_version(capsys):
+    import pytest
+
+    with pytest.raises(SystemExit) as exc:
+        main(["--version"])
+    assert exc.value.code == 0
+    assert "codeverbose" in capsys.readouterr().out
+
+
+def test_cli_commits_non_git_repo(tmp_path, capsys):
+    assert main(["commits", str(tmp_path)]) == 2
+    assert "is not a git repository" in capsys.readouterr().err
+
+
+def test_cli_compare_non_git_repo(tmp_path, capsys):
+    assert main(["compare", "HEAD", str(tmp_path)]) == 2
+    assert "is not a git repository" in capsys.readouterr().err
+
+
+def test_scan_stdout(tmp_path, capsys):
+    (tmp_path / "mod.py").write_text("def ping():\n    return 'pong'\n")
+    assert main(["scan", str(tmp_path), "-o", "-", "-q"]) == 0
+    out = capsys.readouterr().out
+    assert "file,function,language" in out
+    assert "ping" in out
